@@ -2,247 +2,230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze Adventure</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            padding: 2rem;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            flex: 1;
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: titleFloat 3s ease-in-out infinite;
-        }
-
-        .description {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-            color: #ccc;
-        }
-
-        .cta-button {
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
-            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
-            border: none;
-            border-radius: 30px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: bold;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        #game-container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            margin: 2rem auto;
-            max-width: 600px;
-            backdrop-filter: blur(10px);
-        }
-
-        #game-board {
-            display: grid;
-            grid-template-columns: repeat(15, 1fr);
-            gap: 1px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1px;
-            border-radius: 10px;
-        }
-
-        .cell {
-            aspect-ratio: 1;
-            background: rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .wall {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .player {
-            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
-            border-radius: 50%;
-            transform: scale(0.8);
-        }
-
-        .goal {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            border-radius: 50%;
-            transform: scale(0.8);
-        }
-
-        @keyframes titleFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .game-instructions {
-            text-align: center;
-            margin-top: 1rem;
-            color: #ccc;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Horror Maze Adventure</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+    }
+    header {
+      text-align: center;
+      padding: 2rem;
+      background: #111;
+    }
+    h1 { font-size: 3rem; background: linear-gradient(45deg, #ff6b6b, #ffd93d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    #game-container {
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(20, 1fr);
+      gap: 2px;
+      width: 100vw;
+      height: 90vh;
+      margin: 1rem auto;
+      background: linear-gradient(45deg, #333, #222);
+      border: 4px solid #666;
+      padding: 2px;
+      position: relative;
+    }
+    .cell {
+      aspect-ratio: 1;
+      background: #444;
+      transition: background 0.2s;
+    }
+    .wall { background: #222; }
+    .player { background: #ff0000; border-radius: 50%; }
+    .goal { background: #00ff00; border-radius: 50%; }
+    .enemy { background: #0000ff; position: absolute; border-radius: 50%; }
+    .powerup { background: #ffd700; border-radius: 50%; }
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(0,0,0,0.8), rgba(0,0,0,0.3)); pointer-events: none; }
+    .ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #fff;
+      font-size: 1.2rem;
+      z-index: 10;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Maze Adventure</h1>
-        <p class="description">
-            Navigate through the maze and reach the goal!<br>
-            Test your spatial memory and problem-solving skills.<br>
-            Can you find the shortest path to victory?
-        </p>
-        <button class="cta-button" onclick="startGame()">Start Your Adventure</button>
-    </header>
+  <header>
+    <h1>Horror Maze Adventure</h1>
+    <p>Survive the maze. Avoid enemies. Collect power-ups. Reach the goal.</p>
+  </header>
+  <div id="game-container"></div>
+  <div class="ui">
+    <div>Health: <span id="health">100</span></div>
+    <div>Score: <span id="score">0</span></div>
+  </div>
 
-    <main class="container">
-        <div id="game-container">
-            <div id="game-board"></div>
-            <p class="game-instructions">Use arrow keys to move!</p>
-        </div>
-    </main>
+  <!-- Sound Effects -->
+  <audio id="moveSound" src="https://www.soundjay.com/buttons/sounds/button-12.mp3"></audio>
+  <audio id="enemySound" src="https://www.soundjay.com/creature/sounds/creature-growl-1.mp3"></audio>
+  <audio id="powerupSound" src="https://www.soundjay.com/horror/sounds/scary-whoosh-1.mp3"></audio>
+  <audio id="winSound" src="https://www.soundjay.com/horror/sounds/horror-win-1.mp3"></audio>
 
-    <script>
-        const BOARD_SIZE = 15;
-        const board = document.getElementById('game-board');
-        let playerPosition = null;
-        let goalPosition = null;
-        let gameStarted = false;
+  <script>
+    const BOARD_SIZE = 20;
+    const board = document.getElementById('game-container');
+    const healthDisplay = document.getElementById('health');
+    const scoreDisplay = document.getElementById('score');
+    let player = { x: 1, y: 1 };
+    let goal = { x: 18, y: 18 };
+    let enemies = [];
+    let powerups = [];
+    let health = 100;
+    let score = 0;
+    let gameActive = true;
 
-        function createMaze() {
-            board.innerHTML = '';
-            let cells = [];
-            
-            for(let i = 0; i < BOARD_SIZE; i++) {
-                for(let j = 0; j < BOARD_SIZE; j++) {
-                    let cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.id = `cell-${i}-${j}`;
-                    
-                    if (i === 0 || i === BOARD_SIZE - 1 || j === 0 || j === BOARD_SIZE - 1) {
-                        cell.classList.add('wall');
-                    } else if (Math.random() < 0.2 && !(i === 7 && j === 7)) {
-                        cell.classList.add('wall');
-                    }
-                    
-                    cell.addEventListener('click', () => movePlayer(i, j));
-                    board.appendChild(cell);
-                    cells.push(cell);
-                }
-            }
-
-            playerPosition = {x: 1, y: 1};
-            goalPosition = {x: BOARD_SIZE - 2, y: BOARD_SIZE - 2};
-            
-            updatePlayerPosition();
-            updateGoalPosition();
+    // Create Maze
+    function createMaze() {
+      board.innerHTML = '';
+      for (let i = 0; i < BOARD_SIZE; i++) {
+        for (let j = 0; j < BOARD_SIZE; j++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.id = `cell-${i}-${j}`;
+          if (i === 0 || i === BOARD_SIZE - 1 || j === 0 || j === BOARD_SIZE - 1) {
+            cell.classList.add('wall');
+          } else if (Math.random() < 0.2) {
+            cell.classList.add('wall');
+          }
+          board.appendChild(cell);
         }
+      }
 
-        function updatePlayerPosition() {
-            if (!playerPosition) return;
-            const cell = document.getElementById(`cell-${playerPosition.y}-${playerPosition.x}`);
-            cell.classList.add('player');
+      // Add Goal
+      const goalCell = document.getElementById(`cell-${goal.y}-${goal.x}`);
+      goalCell.classList.add('goal');
+
+      // Add Enemies
+      enemies = [];
+      for (let i = 0; i < 5; i++) {
+        const enemy = createEnemy();
+        enemies.push(enemy);
+      }
+
+      // Add Power-Ups
+      powerups = [];
+      for (let i = 0; i < 3; i++) {
+        const powerup = createPowerup();
+        powerups.push(powerup);
+      }
+
+      drawPlayer();
+    }
+
+    // Create Enemy
+    function createEnemy() {
+      const enemy = document.createElement('div');
+      enemy.className = 'enemy';
+      enemy.style.gridColumn = Math.floor(Math.random() * (BOARD_SIZE - 2)) + 1;
+      enemy.style.gridRow = Math.floor(Math.random() * (BOARD_SIZE - 2)) + 1;
+      board.appendChild(enemy);
+      return enemy;
+    }
+
+    // Create Power-Up
+    function createPowerup() {
+      const powerup = document.createElement('div');
+      powerup.className = 'powerup';
+      powerup.style.gridColumn = Math.floor(Math.random() * (BOARD_SIZE - 2)) + 1;
+      powerup.style.gridRow = Math.floor(Math.random() * (BOARD_SIZE - 2)) + 1;
+      board.appendChild(powerup);
+      return powerup;
+    }
+
+    // Draw Player
+    function drawPlayer() {
+      const playerCell = document.getElementById(`cell-${player.y}-${player.x}`);
+      playerCell.classList.add('player');
+    }
+
+    // Move Player
+    function movePlayer(dx, dy) {
+      if (!gameActive) return;
+      const newX = player.x + dx;
+      const newY = player.y + dy;
+      const cell = document.getElementById(`cell-${newY}-${newX}`);
+
+      // Check for walls
+      if (cell.classList.contains('wall')) return;
+
+      // Check for power-ups
+      powerups.forEach(powerup => {
+        if (powerup.style.gridColumn === newX && powerup.style.gridRow === newY) {
+          score += 10;
+          scoreDisplay.textContent = score;
+          document.getElementById('powerupSound').play();
+          powerup.remove();
         }
+      });
 
-        function updateGoalPosition() {
-            if (!goalPosition) return;
-            const cell = document.getElementById(`cell-${goalPosition.y}-${goalPosition.x}`);
-            cell.classList.add('goal');
+      // Check for enemies
+      enemies.forEach(enemy => {
+        if (enemy.style.gridColumn === newX && enemy.style.gridRow === newY) {
+          health -= 20;
+          healthDisplay.textContent = health;
+          document.getElementById('enemySound').play();
+          if (health <= 0) gameOver();
         }
+      });
 
-        function movePlayer(newX, newY) {
-            if (!playerPosition || 
-                newX < 1 || newX >= BOARD_SIZE - 1 ||
-                newY < 1 || newY >= BOARD_SIZE - 1 ||
-                document.getElementById(`cell-${newY}-${newX}`).classList.contains('wall')) {
-                return;
-            }
+      // Move
+      player.x = newX;
+      player.y = newY;
+      document.getElementById('moveSound').play();
+      drawPlayer();
 
-            // Remove old player position
-            const oldCell = document.getElementById(`cell-${playerPosition.y}-${playerPosition.x}`);
-            oldCell.classList.remove('player');
+      // Win Condition
+      if (player.x === goal.x && player.y === goal.y) {
+        document.getElementById('winSound').play();
+        alert("You escaped the maze! 🎉");
+        gameActive = false;
+      }
+    }
 
-            // Update player position
-            playerPosition = {x: newX, y: newY};
-            updatePlayerPosition();
+    // Game Over
+    function gameOver() {
+      alert("You were caught by the enemy. Game Over!");
+      gameActive = false;
+    }
 
-            // Check if player reached the goal
-            if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y) {
-                alert('Congratulations! You won!');
-                startGame();
-            }
+    // Enemy Movement
+    setInterval(() => {
+      enemies.forEach(enemy => {
+        const x = parseInt(enemy.style.gridColumn) || 1;
+        const y = parseInt(enemy.style.gridRow) || 1;
+        const dir = Math.floor(Math.random() * 4);
+        let nx = x, ny = y;
+        if (dir === 0) nx--;
+        if (dir === 1) nx++;
+        if (dir === 2) ny--;
+        if (dir === 3) ny++;
+        if (nx >= 1 && nx <= BOARD_SIZE - 2 && ny >= 1 && ny <= BOARD_SIZE - 2) {
+          enemy.style.gridColumn = nx;
+          enemy.style.gridRow = ny;
         }
+      });
+    }, 1000);
 
-        function startGame() {
-            if (!gameStarted) {
-                gameStarted = true;
-                createMaze();
-            }
-        }
+    // Controls
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp') movePlayer(0, -1);
+      if (e.key === 'ArrowDown') movePlayer(0, 1);
+      if (e.key === 'ArrowLeft') movePlayer(-1, 0);
+      if (e.key === 'ArrowRight') movePlayer(1, 0);
+    });
 
-        window.addEventListener('keydown', (e) => {
-            if (gameStarted) {
-                switch(e.key) {
-                    case 'ArrowUp':
-                        movePlayer(playerPosition.x, playerPosition.y - 1);
-                        break;
-                    case 'ArrowDown':
-                        movePlayer(playerPosition.x, playerPosition.y + 1);
-                        break;
-                    case 'ArrowLeft':
-                        movePlayer(playerPosition.x - 1, playerPosition.y);
-                        break;
-                    case 'ArrowRight':
-                        movePlayer(playerPosition.x + 1, playerPosition.y);
-                        break;
-                }
-            }
-        });
-    </script>
+    // Start Game
+    createMaze();
+  </script>
 </body>
 </html>
