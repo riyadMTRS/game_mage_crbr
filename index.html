@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 2rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleFloat 3s ease-in-out infinite;
+        }
+
+        .description {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        .cta-button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #game-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem auto;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            gap: 1px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1px;
+            border-radius: 10px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .wall {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .player {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            border-radius: 50%;
+            transform: scale(0.8);
+        }
+
+        .goal {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-radius: 50%;
+            transform: scale(0.8);
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .game-instructions {
+            text-align: center;
+            margin-top: 1rem;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Maze Adventure</h1>
+        <p class="description">
+            Navigate through the maze and reach the goal!<br>
+            Test your spatial memory and problem-solving skills.<br>
+            Can you find the shortest path to victory?
+        </p>
+        <button class="cta-button" onclick="startGame()">Start Your Adventure</button>
+    </header>
+
+    <main class="container">
+        <div id="game-container">
+            <div id="game-board"></div>
+            <p class="game-instructions">Use arrow keys to move!</p>
+        </div>
+    </main>
+
+    <script>
+        const BOARD_SIZE = 15;
+        const board = document.getElementById('game-board');
+        let playerPosition = null;
+        let goalPosition = null;
+        let gameStarted = false;
+
+        function createMaze() {
+            board.innerHTML = '';
+            let cells = [];
+            
+            for(let i = 0; i < BOARD_SIZE; i++) {
+                for(let j = 0; j < BOARD_SIZE; j++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${i}-${j}`;
+                    
+                    if (i === 0 || i === BOARD_SIZE - 1 || j === 0 || j === BOARD_SIZE - 1) {
+                        cell.classList.add('wall');
+                    } else if (Math.random() < 0.2 && !(i === 7 && j === 7)) {
+                        cell.classList.add('wall');
+                    }
+                    
+                    cell.addEventListener('click', () => movePlayer(i, j));
+                    board.appendChild(cell);
+                    cells.push(cell);
+                }
+            }
+
+            playerPosition = {x: 1, y: 1};
+            goalPosition = {x: BOARD_SIZE - 2, y: BOARD_SIZE - 2};
+            
+            updatePlayerPosition();
+            updateGoalPosition();
+        }
+
+        function updatePlayerPosition() {
+            if (!playerPosition) return;
+            const cell = document.getElementById(`cell-${playerPosition.y}-${playerPosition.x}`);
+            cell.classList.add('player');
+        }
+
+        function updateGoalPosition() {
+            if (!goalPosition) return;
+            const cell = document.getElementById(`cell-${goalPosition.y}-${goalPosition.x}`);
+            cell.classList.add('goal');
+        }
+
+        function movePlayer(newX, newY) {
+            if (!playerPosition || 
+                newX < 1 || newX >= BOARD_SIZE - 1 ||
+                newY < 1 || newY >= BOARD_SIZE - 1 ||
+                document.getElementById(`cell-${newY}-${newX}`).classList.contains('wall')) {
+                return;
+            }
+
+            // Remove old player position
+            const oldCell = document.getElementById(`cell-${playerPosition.y}-${playerPosition.x}`);
+            oldCell.classList.remove('player');
+
+            // Update player position
+            playerPosition = {x: newX, y: newY};
+            updatePlayerPosition();
+
+            // Check if player reached the goal
+            if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y) {
+                alert('Congratulations! You won!');
+                startGame();
+            }
+        }
+
+        function startGame() {
+            if (!gameStarted) {
+                gameStarted = true;
+                createMaze();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (gameStarted) {
+                switch(e.key) {
+                    case 'ArrowUp':
+                        movePlayer(playerPosition.x, playerPosition.y - 1);
+                        break;
+                    case 'ArrowDown':
+                        movePlayer(playerPosition.x, playerPosition.y + 1);
+                        break;
+                    case 'ArrowLeft':
+                        movePlayer(playerPosition.x - 1, playerPosition.y);
+                        break;
+                    case 'ArrowRight':
+                        movePlayer(playerPosition.x + 1, playerPosition.y);
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
